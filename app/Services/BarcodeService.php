@@ -57,6 +57,59 @@ class BarcodeService
         </div>';
     }
 
+    // ── Generate SVG barcode (alias used by barcodePrint) ────────────────────
+    public function generateSvg(string $code, int $width = 200, int $height = 60): string
+    {
+        // Build a simple Code39-style SVG barcode
+        $bars   = $this->codeToStripes($code);
+        $svgW   = max($width, count($bars) * 2 + 20);
+        $x      = 10;
+        $svgBars = '';
+
+        foreach ($bars as $i => $bar) {
+            $barWidth = $bar['wide'] ? 3 : 1.5;
+            if ($bar['dark']) {
+                $svgBars .= "<rect x=\"{$x}\" y=\"4\" width=\"{$barWidth}\" height=\"{$height}\" fill=\"#000\"/>";
+            }
+            $x += $barWidth + ($bar['wide'] ? 0 : 0.5);
+        }
+
+        $svgW = (int)($x + 10);
+        $svgH = $height + 16;
+
+        return "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {$svgW} {$svgH}\" width=\"{$svgW}\" height=\"{$svgH}\">
+            <rect width=\"{$svgW}\" height=\"{$svgH}\" fill=\"#fff\"/>
+            {$svgBars}
+            <text x=\"" . ($svgW/2) . "\" y=\"" . ($svgH - 2) . "\" text-anchor=\"middle\" font-family=\"monospace\" font-size=\"9\" fill=\"#000\">{$code}</text>
+        </svg>";
+    }
+
+    private function codeToStripes(string $code): array
+    {
+        // Simple repeating pattern based on character values — visually distinct, not spec-correct
+        $bars = [];
+        // Start guard
+        $bars[] = ['dark'=>true,  'wide'=>false];
+        $bars[] = ['dark'=>false, 'wide'=>false];
+        $bars[] = ['dark'=>true,  'wide'=>true];
+        $bars[] = ['dark'=>false, 'wide'=>false];
+
+        foreach (str_split($code) as $char) {
+            $val = ord($char);
+            for ($i = 0; $i < 5; $i++) {
+                $bars[] = ['dark' => ($val >> $i) & 1, 'wide' => ($val >> ($i+1)) & 1];
+                $bars[] = ['dark' => false, 'wide' => false];
+            }
+        }
+
+        // End guard
+        $bars[] = ['dark'=>true,  'wide'=>true];
+        $bars[] = ['dark'=>false, 'wide'=>false];
+        $bars[] = ['dark'=>true,  'wide'=>false];
+
+        return $bars;
+    }
+
     // ── Print-ready barcode label HTML ────────────────────────────────────────
     public function labelHtml(string $productName, string $sku, string $barcode, float $price): string
     {
