@@ -3,13 +3,13 @@
 @section('content')
 
 <section class="card">
-    <header class="card-header">
-        <div class="card-actions">
+        <header class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="card-title">Roles & Permissions</h2>
             <a href="{{ route('roles.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i> New Role
             </a>
         </div>
-        <h2 class="card-title">Roles & Permissions</h2>
     </header>
     <div class="card-body">
 

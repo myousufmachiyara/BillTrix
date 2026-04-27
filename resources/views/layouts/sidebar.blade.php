@@ -175,8 +175,8 @@
           @endcan
 
           {{-- Administration --}}
-          @canany(['manage branches', 'manage users'])
-          <li class="nav-parent {{ request()->routeIs('branches.*','users.*') ? 'nav-expanded active' : '' }}">
+          @canany(['manage branches', 'manage users', 'manage roles'])
+          <li class="nav-parent {{ request()->routeIs('branches.*','users.*','roles.*') ? 'nav-expanded active' : '' }}">
             <a class="nav-link" href="#">
               <i class="fa fa-user-shield"></i>
               <span>Administration</span>
@@ -192,6 +192,9 @@
                 <a class="nav-link" href="{{ route('users.index') }}">Users</a>
               </li>
               @endcan
+              <li class="{{ request()->routeIs('roles.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('roles.index') }}">Roles & Permissions</a>
+              </li>
             </ul>
           </li>
           @endcanany
