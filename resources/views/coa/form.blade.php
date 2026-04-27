@@ -6,7 +6,6 @@
     <header class="card-header">
         <div class="card-actions">
             <a href="{{ route('coa.index') }}" class="card-action card-action-dismiss" title="Back">
-                <i class="fas fa-arrow-left"></i>
             </a>
         </div>
         <h2 class="card-title">
