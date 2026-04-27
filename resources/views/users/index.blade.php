@@ -1,91 +1,40 @@
 @extends('layouts.app')
 @section('title', 'Users')
-
 @section('content')
-<div class="row">
-  <div class="col">
-    <section class="card">
-      @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-      @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-
-      <header class="card-header">
-        <div style="display:flex; justify-content:space-between;">
-          <h2 class="card-title">All Users</h2>
-          @can('users.create')
-          <a href="{{ route('users.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> User</a>
-          @endcan
-        </div>
-      </header>
-
-      <div class="card-body">
-        <div class="table-scroll">
-          <table class="table table-bordered table-striped mb-0" id="cust-datatable-default">
-            <thead>
-              <tr>
-                <th>S.No</th><th>Name</th><th>Email</th><th>Phone</th>
-                <th>Roles</th><th>Branches</th><th>2FA</th><th>Last Login</th>
-                <th>Status</th><th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($users ?? [] as $i => $u)
-              <tr>
-                <td>{{ $i + 1 }}</td>
-                <td>
-                  @if($u->avatar)
-                    <img src="{{ asset('storage/'.$u->avatar) }}" width="28" height="28"
-                         class="rounded-circle me-1" style="object-fit:cover">
-                  @endif
-                  <strong>{{ $u->name }}</strong>
-                </td>
-                <td>{{ $u->email }}</td>
-                <td>{{ $u->phone ?? '-' }}</td>
-                <td>
-                  @foreach($u->roles ?? [] as $role)
-                    <span class="badge bg-info">{{ $role->name }}</span>
-                  @endforeach
-                </td>
-                <td>
-                  @foreach($u->branches ?? [] as $b)
-                    <span class="badge bg-secondary">{{ $b->name }}</span>
-                  @endforeach
-                </td>
-                <td>
-                  @if($u->two_factor_enabled)
-                    <span class="badge badge-active"><i class="fas fa-shield-alt"></i> On</span>
-                  @else
-                    <span class="badge badge-inactive">Off</span>
-                  @endif
-                </td>
-                <td>{{ $u->last_login_at ?? '-' }}</td>
-                <td>
-                  <span class="badge {{ $u->is_active ? 'badge-active' : 'badge-inactive' }}">
-                    {{ $u->is_active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td>
-                  <a href="{{ route('users.edit', $u->id) }}" class="text-warning"><i class="fa fa-edit"></i></a>
-                  @if(auth()->id() !== $u->id)
-                  <form method="POST" action="{{ route('users.destroy', $u->id) }}" style="display:inline">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-link p-0 text-danger" onclick="return confirm('Delete user?')">
-                      <i class="fa fa-trash-alt"></i>
-                    </button>
-                  </form>
-                  @endif
-                </td>
-              </tr>
-              @empty
-              <tr><td colspan="10" class="text-center text-muted py-4">No users found.</td></tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
-        @if(method_exists($users ?? new \stdClass, 'links'))
-          <div class="mt-3">{{ $users->appends(request()->query())->links() }}</div>
-        @endif
-      </div>
-    </section>
-  </div>
+<div class="container-fluid">
+<div class="card">
+<div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Users</h5>
+    <a href="{{ route('users.create') }}" class="btn btn-sm btn-primary">+ Add User</a>
 </div>
+<div class="card-body">
+    @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+    <table class="table table-bordered datatable">
+        <thead class="table-light">
+            <tr><th>#</th><th>Name</th><th>Email</th><th>Branch</th><th>Roles</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        @foreach($users as $u)
+        <tr>
+            <td>{{ $loop->iteration }}</td>
+            <td>{{ $u->name }}</td>
+            <td>{{ $u->email }}</td>
+            <td>{{ $u->branch->name ?? 'All' }}</td>
+            <td>{{ $u->getRoleNames()->implode(', ') ?: '—' }}</td>
+            <td><span class="badge bg-{{ $u->is_active ? 'success' : 'secondary' }}">{{ $u->is_active ? 'Active' : 'Inactive' }}</span></td>
+            <td>
+                <a href="{{ route('users.edit',$u) }}" class="btn btn-xs btn-warning">Edit</a>
+                @if($u->id !== auth()->id())
+                <form method="POST" action="{{ route('users.destroy',$u) }}" class="d-inline"
+                      onsubmit="return confirm('Delete this user?')">
+                    @csrf @method('DELETE')
+                    <button class="btn btn-xs btn-danger">Delete</button>
+                </form>
+                @endif
+            </td>
+        </tr>
+        @endforeach
+        </tbody>
+    </table>
+</div></div></div>
 @endsection

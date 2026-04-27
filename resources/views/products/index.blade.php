@@ -1,174 +1,121 @@
 @extends('layouts.app')
-@section('title', 'Product | All Products')
-
+@section('title','Products')
 @section('content')
-<div class="row">
-  <div class="col">
-    <section class="card">
-      @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @elseif(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-      @endif
 
-      <header class="card-header">
-        <div style="display:flex; justify-content:space-between;">
-          <h2 class="card-title">All Products</h2>
-          <div>
-            @can('products.create')
-            <a href="{{ route('products.create') }}" class="btn btn-primary">
-              <i class="fas fa-plus"></i> Product
-            </a>
-            @endcan
-            @can('shopify_stores.index')
-            <button type="button" class="modal-with-form btn btn-success" href="#shopifyImportModal">
-              <i class="fab fa-shopify"></i> Import from Shopify
-            </button>
-            @endcan
-          </div>
+<section class="card">
+    <header class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="card-title">Products</h2>
+        <div class="d-flex gap-2">            
+            <a href="{{ route('products.barcodePrint') }}" class="btn btn-default"><i class="fas fa-barcode"></i> Print Barcodes</a>
+            <a href="{{ route('products.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> New Product </a>
         </div>
-      </header>
+    </header>
+    <div class="card-body">
 
-      <div class="card-body">
-        <div class="modal-wrapper table-scroll">
-          <table class="table table-bordered table-striped mb-0" id="cust-datatable-default">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Image</th>
-                <th>Product Name</th>
-                <th>SKU</th>
-                <th>Barcode</th>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Sale Price</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @foreach($products as $index => $product)
-              <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>
-                  @if(isset($product->images) && $product->images->first())
-                    <img src="{{ asset('storage/'.$product->images->first()->image_path) }}"
-                         width="50" height="50" style="object-fit:cover; border-radius:4px;">
-                  @else
-                    <span class="text-muted">—</span>
-                  @endif
-                </td>
-                <td>
-                  <strong>{{ $product->name }}</strong>
-                  @if($product->shopifyStore ?? false)
-                    <br><small class="badge bg-info text-white">{{ $product->shopifyStore->shop_name }}</small>
-                  @endif
-                </td>
-                <td>{{ $product->sku }}</td>
-                <td>{{ $product->barcode }}</td>
-                <td>
-                  {{ $product->category->name ?? '-' }}
-                  @if(!empty($product->subcategory))
-                    - {{ $product->subcategory->name }}
-                  @endif
-                </td>
-                <td><span class="badge bg-secondary">{{ ucfirst($product->type) }}</span></td>
-                <td>{{ number_format($product->sale_price, 2) }}</td>
-                <td>
-                  <span class="badge {{ $product->is_active ? 'badge-active' : 'badge-inactive' }}">
-                    {{ $product->is_active ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td>
-                  <a href="{{ route('products.edit', $product->id) }}" class="text-primary">
-                    <i class="fa fa-edit"></i>
-                  </a>
-                  <form method="POST" action="{{ route('products.destroy', $product->id) }}" style="display:inline-block">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-link p-0 m-0 text-danger"
-                            onclick="return confirm('Delete this product?')" title="Delete">
-                      <i class="fa fa-trash-alt"></i>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              @endforeach
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {{-- Shopify Import Modal --}}
-      <div id="shopifyImportModal" class="modal-block modal-block-primary mfp-hide">
-        <section class="card">
-          <form action="{{ route('shopify.import') }}" method="POST" id="shopifyImportForm">
-            @csrf
-            <header class="card-header">
-              <h2 class="card-title">Select Shopify Stores</h2>
-            </header>
-            <div class="card-body">
-              @if(($shopify_stores ?? collect())->isEmpty())
-                <div class="alert alert-warning">
-                  No Shopify stores connected. <a href="{{ route('shopify.settings') }}">Connect a store first</a>.
-                </div>
-              @else
-                <div class="form-group">
-                  <label>Select Stores to Sync</label>
-                  @foreach($shopify_stores ?? [] as $store)
-                  <div class="checkbox-custom checkbox-primary">
-                    <input type="checkbox" name="store_ids[]" value="{{ $store->id }}" id="store_{{ $store->id }}">
-                    <label for="store_{{ $store->id }}">
-                      {{ $store->shop_name }} <small class="text-muted">({{ $store->shop_url }})</small>
-                    </label>
-                  </div>
-                  @endforeach
-                </div>
-              @endif
-              <div id="import-loading" style="display:none; text-align:center; padding:20px;">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="sr-only">Loading...</span>
-                </div>
-                <p class="mt-2">Importing products and images, please wait...</p>
-              </div>
+        <form method="GET" class="row g-2 mb-3">
+            <div class="col-md-3">
+                <select name="category_id" class="form-control form-control-sm select2">
+                    <option value="">All Categories</option>
+                    @foreach($categories as $c)
+                    <option value="{{ $c->id }}" {{ request('category_id')==$c->id?'selected':'' }}>{{ $c->name }}</option>
+                    @endforeach
+                </select>
             </div>
-            <footer class="card-footer">
-              <div class="row">
-                <div class="col-md-12 text-end">
-                  <div id="import-actions">
-                    @if(!($shopify_stores ?? collect())->isEmpty())
-                      <button type="submit" class="btn btn-primary" id="start-import-btn">Start Import</button>
-                    @endif
-                    <button type="button" class="btn btn-default modal-dismiss">Close</button>
-                  </div>
-                </div>
-              </div>
-            </footer>
-          </form>
-        </section>
-      </div>
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control"
+                       placeholder="Name / SKU / Barcode..." value="{{ request('search') }}">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-secondary"><i class="fas fa-search"></i></button>
+                <a href="{{ route('products.index') }}" class="btn btn-warning">Reset</a>
+            </div>
+        </form>
 
-    </section>
-  </div>
-</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>SKU / Variations</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Unit</th>
+                        <th class="text-right">Sale Price</th>
+                        <th class="text-center">Stock</th>
+                        <th class="text-center">Active</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($products as $p)
+                <tr>
+                    <td>
+                        @if($p->variations->count())
+                            <span class="badge badge-info">{{ $p->variations->count() }} variations</span>
+                            <br>
+                            @foreach($p->variations->take(2) as $v)
+                            <small class="text-muted">{{ $v->sku }}</small><br>
+                            @endforeach
+                            @if($p->variations->count() > 2)
+                            <small class="text-muted">+{{ $p->variations->count()-2 }} more</small>
+                            @endif
+                        @else
+                            <code>—</code>
+                        @endif
+                    </td>
+                    <td><strong>{{ $p->name }}</strong></td>
+                    <td>{{ optional($p->category)->name ?? '—' }}</td>
+                    <td>{{ optional($p->unit)->name ?? '—' }}</td>
+                    <td class="text-right">
+                        @if($p->variations->count())
+                            {{ number_format($p->variations->min('sale_price'),2) }}
+                            @if($p->variations->min('sale_price') != $p->variations->max('sale_price'))
+                            — {{ number_format($p->variations->max('sale_price'),2) }}
+                            @endif
+                        @else
+                            —
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @php $totalStock = $p->variations->sum('stock_quantity'); @endphp
+                        <span class="{{ $totalStock <= 0 ? 'text-danger fw-bold' : '' }}">
+                            {{ number_format($totalStock, 2) }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        @if($p->is_active)
+                            <span class="badge badge-success">Active</span>
+                        @else
+                            <span class="badge badge-default">Inactive</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ route('products.edit', $p) }}" class="btn btn-xs btn-warning" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="POST" action="{{ route('products.destroy', $p) }}" class="d-inline"
+                              onsubmit="return confirm('Delete this product and all its variations?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-xs btn-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="fas fa-boxes fa-2x mb-2 d-block"></i>
+                        No products found
+                    </td>
+                </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
 
-<script>
-$(document).ready(function () {
-    $('#cust-datatable-default').DataTable({ pageLength: 25 });
+        <div class="mt-3">{{ $products->links() }}</div>
 
-    $('#shopifyImportForm').on('submit', function(e) {
-        if ($('input[name="store_ids[]"]:checked').length === 0) {
-            e.preventDefault();
-            alert('Please select at least one store.');
-            return false;
-        }
-        $('#import-actions').hide();
-        $('#import-loading').fadeIn();
-        $('#start-import-btn').prop('disabled', true);
-        $('.modal-dismiss').prop('disabled', true);
-        window.onbeforeunload = function() {
-            return "Import in progress. Closing may interrupt the sync.";
-        };
-    });
-});
-</script>
+    </div>
+</section>
+
 @endsection

@@ -2,34 +2,29 @@
 <html lang="en" class="fixed js flexbox flexboxlegacy no-touch csstransforms csstransforms3d no-overflowscrolling webkit chrome win js no-mobile-device custom-scroll sidebar-left-collapsed">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>@yield('title', 'BillTrix')</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@yield('title', 'BillTrix ERP') | {{ config('app.name') }}</title>
     <link rel="shortcut icon" href="{{ asset('assets/img/favicon.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Web Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800|Shadows+Into+Light" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
 
-    <!-- Vendor CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/animate/animate.compat.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/boxicons/css/boxicons.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/magnific-popup/magnific-popup.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/datatables/media/css/dataTables.bootstrap5.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/select2-bootstrap-theme/select2-bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-multiselect/css/bootstrap-multiselect.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/basic.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/dropzone.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap/css/bootstrap.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/animate/animate.compat.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/font-awesome/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/boxicons/css/boxicons.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/magnific-popup/magnific-popup.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/datatables/media/css/dataTables.bootstrap5.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/select2/css/select2.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/select2-bootstrap-theme/select2-bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/bootstrap-multiselect/css/bootstrap-multiselect.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/basic.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/dropzone.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/skins/default.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
 
-    <!-- Theme CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/skins/default.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
-
-    <!-- jQuery early (needed by theme) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
@@ -37,117 +32,129 @@
         #loader {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(255,255,255,.8);
+            background: rgba(255,255,255,0.8);
             display: flex; justify-content: center; align-items: center;
             z-index: 9999;
         }
         #loader.hidden { display: none; }
-
         .cust-pad { padding-top: 0; }
-
         @media (min-width: 768px) {
-            .cust-pad       { padding: 60px 10px 0 20px; }
-            .home-cust-pad  { padding: 60px 15px 0 15px; }
-            .sidebar-logo   { width: 60%; height: auto; padding-top: 5px; }
+            .cust-pad { padding: 60px 10px 0px 20px; }
+            .home-cust-pad { padding: 60px 15px 0px 15px; }
+            .sidebar-logo { width: 60%; height: auto; padding-top: 5px; }
         }
         @media (max-width: 767px) {
             .sidebar-logo { height: 40%; }
         }
-
-        .icon-container {
-            background-size: auto;
-            background-repeat: no-repeat;
-            background-position: right bottom;
+        .pw-wrap { position: relative; }
+        .pw-wrap .form-control { padding-right: 2.5rem; }
+        .pw-toggle {
+            position: absolute; top: 50%; right: 10px;
+            transform: translateY(-50%);
+            background: none; border: none;
+            padding: 0; cursor: pointer;
+            color: #999; font-size: 14px; line-height: 1; z-index: 5;
         }
-
-        /* Status badges */
-        .badge-draft     { background: #6c757d; color:#fff; }
-        .badge-posted    { background: #0d6efd; color:#fff; }
-        .badge-paid      { background: #198754; color:#fff; }
-        .badge-partial   { background: #fd7e14; color:#fff; }
-        .badge-cancelled { background: #dc3545; color:#fff; }
-        .badge-pending   { background: #ffc107; color:#000; }
-        .badge-approved  { background: #198754; color:#fff; }
-        .badge-active    { background: #198754; color:#fff; }
-        .badge-inactive  { background: #6c757d; color:#fff; }
-        .badge-overdue   { background: #dc3545; color:#fff; }
-
-        .btn-action { padding: .15rem .4rem; font-size: .8rem; }
-        .table-scroll { overflow-x: auto; }
-
-        /* Overdue row highlight */
-        tr.row-overdue { background-color: #fff5f5 !important; }
-        tr.row-warning { background-color: #fffbeb !important; }
+        .pw-toggle:hover { color: #444; }
     </style>
 
     @stack('styles')
 </head>
 <body>
 
-    <!-- Page Loader -->
+    {{-- Page Loader --}}
     <div id="loader">
         <div class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
 
-    <!-- Change Password Modal (Magnific Popup inline) -->
+    {{-- Change Password Modal --}}
     <div id="changePassword" class="zoom-anim-dialog modal-block modal-block-danger mfp-hide">
-        <form id="changePasswordForm" method="POST" action="{{ route('password.change') }}"
-              style="width:75%" enctype="multipart/form-data" onkeydown="return event.key != 'Enter';">
-            @csrf
-            <header class="card-header">
-                <h2 class="card-title">Change Password</h2>
-            </header>
-            <div class="card-body">
-                <div class="row form-group">
-                    <div class="col-12 mb-2">
-                        <label>Current Password</label>
-                        <input type="password" class="form-control" id="current_password"
-                               name="current_password" placeholder="Current Password" required>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <label>New Password</label>
-                        <input type="password" class="form-control" id="new_password"
-                               name="new_password" placeholder="New Password (min 8 chars)" minlength="8" required>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <label>Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirm_new_password"
-                               placeholder="Confirm New Password" minlength="8" required>
+        <section class="card">
+            <form id="changePasswordForm" autocomplete="off" onkeydown="return event.key != 'Enter';">
+                @csrf
+                <header class="card-header">
+                    <h2 class="card-title">Change Password</h2>
+                </header>
+                <div class="card-body">
+                    <div id="cp-alert" class="alert d-none mb-3"></div>
+                    <div class="row form-group">
+                        <div class="col-12 mb-3">
+                            <label>Current Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" class="form-control" name="current_password"
+                                       id="cp_current" placeholder="Current Password"
+                                       autocomplete="current-password" required>
+                                <button type="button" class="pw-toggle" tabindex="-1"
+                                        onclick="togglePw('cp_current', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label>New Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" class="form-control" name="new_password"
+                                       id="cp_new" placeholder="New Password (min 8 chars)"
+                                       minlength="8" autocomplete="new-password" required>
+                                <button type="button" class="pw-toggle" tabindex="-1"
+                                        onclick="togglePw('cp_new', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label>Confirm New Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" class="form-control" name="new_password_confirmation"
+                                       id="cp_confirm" placeholder="Confirm New Password"
+                                       minlength="8" autocomplete="new-password" required>
+                                <button type="button" class="pw-toggle" tabindex="-1"
+                                        onclick="togglePw('cp_confirm', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <footer class="card-footer">
-                <div class="row">
+                <footer class="card-footer">
                     <div class="col-md-12 text-end">
-                        <button type="submit" class="btn btn-primary">Change Password</button>
+                        <button type="submit" id="cp-submit-btn" class="btn btn-primary">Change Password</button>
                         <button type="button" class="btn btn-default modal-dismiss">Cancel</button>
                     </div>
-                </div>
-            </footer>
-        </form>
+                </footer>
+            </form>
+        </section>
     </div>
 
-    <!-- Page Header -->
+    {{-- Header --}}
     <header class="page-header">
 
-        <!-- Desktop header -->
+        {{-- Desktop header --}}
         <div class="logo-container d-none d-md-block">
             <div id="userbox" class="userbox" style="float:right !important;">
                 <a href="#" data-bs-toggle="dropdown" style="margin-right:20px;">
                     <div class="profile-info">
-                        <span class="name">{{ session('user_name') }}</span>
-                        <span class="role">{{ session('role_name') }}</span>
+                        <span class="name">{{ auth()->user()->name }}</span>
+                        <span class="role">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</span>
                     </div>
                     <i class="fa custom-caret"></i>
                 </a>
                 <div class="dropdown-menu">
                     <ul class="list-unstyled">
                         <li>
-                            <a role="menuitem" tabindex="-1" href="#changePassword"
+                            <a role="menuitem" tabindex="-1"
+                               href="#changePassword"
                                class="mb-1 mt-1 me-1 modal-with-zoom-anim ws-normal">
                                 <i class="bx bx-lock"></i> Change Password
+                            </a>
+                        </li>
+                        <li>
+                            <a role="menuitem" tabindex="-1"
+                               href="{{ route('pos.index') }}" target="_blank"
+                               class="mb-1 mt-1 me-1">
+                                <i class="fa fa-cash-register"></i> Open POS
                             </a>
                         </li>
                         <li>
@@ -164,24 +171,24 @@
             </div>
         </div>
 
-        <!-- Mobile header -->
+        {{-- Mobile header --}}
         <div class="logo-container d-md-none">
             <a href="{{ route('dashboard') }}" class="logo">
-                <img class="pt-2" src="{{ asset('assets/img/billtrix-logo-black.png') }}"
-                     width="35%" alt="BillTrix Logo">
+                <img class="pt-2" src="{{ asset('assets/img/billtrix-logo-black.png') }}" width="35%" alt="Logo" />
             </a>
-            <div id="userbox" class="userbox" style="float:right !important;">
+            <div id="userbox-mobile" class="userbox" style="float:right !important;">
                 <a href="#" data-bs-toggle="dropdown" style="margin-right:20px;">
                     <div class="profile-info">
-                        <span class="name">{{ session('user_name') }}</span>
-                        <span class="role">{{ session('role_name') }}</span>
+                        <span class="name">{{ auth()->user()->name }}</span>
+                        <span class="role">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</span>
                     </div>
                     <i class="fa custom-caret"></i>
                 </a>
                 <div class="dropdown-menu">
                     <ul class="list-unstyled">
                         <li>
-                            <a role="menuitem" tabindex="-1" href="#changePassword"
+                            <a role="menuitem" tabindex="-1"
+                               href="#changePassword"
                                class="mb-1 mt-1 me-1 modal-with-zoom-anim ws-normal">
                                 <i class="bx bx-lock"></i> Change Password
                             </a>
@@ -198,30 +205,32 @@
 
     </header>
 
-    <!-- Body -->
+    {{-- Body --}}
     <section class="body">
         <div class="inner-wrapper cust-pad">
+
             @include('layouts.sidebar')
+
             <section role="main" class="content-body">
 
-                <!-- Flash Messages -->
+                {{-- Flash messages --}}
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
                 @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
-                @if(session('warning'))
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-1"></i> {{ session('warning') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
                 @endif
 
                 @yield('content')
@@ -231,94 +240,150 @@
     </section>
 
     <footer>
-        @include('layouts.footer')
         <div class="text-end">
             <div>Powered By <a target="_blank" href="https://syitrix.com/">SyiTrix</a></div>
         </div>
     </footer>
 
-    <!-- ============================================================
-         Footer Scripts – exact order from your spec
-    ============================================================ -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nanoscroller/0.8.7/jquery.nanoscroller.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-placeholder/2.3.1/jquery.placeholder.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.appear/0.4.1/jquery.appear.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-    <script src="{{ asset('assets/vendor/bootstrapv5-multiselect/js/bootstrap-multiselect.js') }}"></script>
-    <script src="{{ asset('assets/vendor/dropzone/dropzone.js') }}"></script>
+    {{-- Vendor JS --}}
     <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/nanoscroller/nanoscroller.js') }}"></script>
+    <script src="{{ asset('assets/vendor/magnific-popup/jquery.magnific-popup.js') }}"></script>
+    <script src="{{ asset('assets/vendor/datatables/media/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/datatables/media/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/select2/js/select2.js') }}"></script>
+    <script src="{{ asset('assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('assets/vendor/bootstrap-multiselect/js/bootstrap-multiselect.js') }}"></script>
     <script src="{{ asset('assets/js/theme.js') }}"></script>
     <script src="{{ asset('assets/js/custom.js') }}"></script>
-    <script src="{{ asset('assets/js/examples/examples.header.menu.js') }}"></script>
-    <script src="{{ asset('assets/js/examples/examples.dashboard.js') }}"></script>
-    <script src="{{ asset('assets/js/examples/examples.datatables.default.js') }}"></script>
-    <script src="{{ asset('assets/js/examples/examples.modals.js') }}"></script>
     <script src="{{ asset('assets/js/theme.init.js') }}"></script>
-    <script src="{{ asset('assets/vendor/jquery-nestable/jquery.nestable.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 
     <script>
-    $(function () {
-        // Hide loader
+    // ── Hide loader once page is ready ───────────────────────────────────────
+    $(window).on('load', function () {
         $('#loader').addClass('hidden');
-
-        // Global Select2
-        if ($.fn.select2) {
-            $('.select2').select2({ width: '100%' });
-            $('.select2-js').select2({ width: '100%', dropdownAutoWidth: true });
-        }
-
-        // Global DataTable (only if specific id present)
-        if ($.fn.DataTable && $('#cust-datatable-default').length) {
-            $('#cust-datatable-default').DataTable({ pageLength: 25, responsive: true });
-        }
-
-        // Datepicker
-        if ($.fn.datepicker) {
-            $('.datepicker').datepicker({ format: 'yyyy-mm-dd', autoclose: true, todayHighlight: true });
-        }
-
-        // Magnific Popup – inline modals
-        if ($.fn.magnificPopup) {
-            $('.modal-with-zoom-anim').magnificPopup({
-                type: 'inline', fixedContentPos: false, fixedBgPos: true,
-                overflowY: 'auto', closeBtnInside: true, preloader: false,
-                midClick: true, removalDelay: 300, mainClass: 'my-mfp-zoom-in'
-            });
-            $('.modal-with-form').magnificPopup({
-                type: 'inline', fixedContentPos: true,
-                mainClass: 'mfp-with-zoom',
-                zoom: { enabled: true, duration: 300 }
-            });
-        }
-
-        // Form double-submit protection
-        $('form').on('submit', function () {
-            var $form = $(this);
-            if ($form.hasClass('submitting')) return false;
-            $form.addClass('submitting');
-            $form.find('button[type="submit"]').prop('disabled', true)
-                 .prepend('<span class="spinner-border spinner-border-sm me-1"></span>');
-        });
     });
 
-    // Global CSRF for AJAX
-    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+    // ── DataTables + Select2 init ─────────────────────────────────────────────
+    $(document).ready(function () {
+        $('.select2').select2();
+        $('.datatable').DataTable({ pageLength: 25, order: [[0, 'desc']] });
 
-    // Global number formatter
-    window.formatNum = function(x) {
-        return parseFloat(x || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    };
+        // Save sidebar scroll position
+        var sidebarEl = document.querySelector('#sidebar-left .nano-content');
+        if (sidebarEl) {
+            sidebarEl.addEventListener('scroll', function () {
+                localStorage.setItem('sidebar-left-position', sidebarEl.scrollTop);
+            });
+        }
+    });
+
+    // ── Toggle password visibility ────────────────────────────────────────────
+    function togglePw(fieldId, btn) {
+        var input = document.getElementById(fieldId);
+        var icon  = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    // ── Change Password (single-fire AJAX) ───────────────────────────────────
+    (function () {
+        var form = document.getElementById('changePasswordForm');
+
+        // Block native form submission entirely so Porto theme cannot re-fire it
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }, true);
+
+        document.getElementById('cp-submit-btn').addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            var btn     = this;
+            var alertEl = document.getElementById('cp-alert');
+            var csrf    = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            if (btn.dataset.submitting === '1') return;
+
+            var newPw  = document.getElementById('cp_new').value;
+            var confPw = document.getElementById('cp_confirm').value;
+
+            if (newPw !== confPw) {
+                alertEl.className   = 'alert alert-danger';
+                alertEl.textContent = 'Passwords do not match.';
+                return;
+            }
+            if (newPw.length < 8) {
+                alertEl.className   = 'alert alert-danger';
+                alertEl.textContent = 'New password must be at least 8 characters.';
+                return;
+            }
+
+            btn.dataset.submitting = '1';
+            btn.disabled           = true;
+            btn.textContent        = 'Saving…';
+            alertEl.className      = 'alert d-none';
+
+            var payload = new FormData();
+            payload.append('_token',                    csrf);
+            payload.append('current_password',          document.getElementById('cp_current').value);
+            payload.append('new_password',              newPw);
+            payload.append('new_password_confirmation', confPw);
+
+            fetch('/change-my-password', {
+                method : 'POST',
+                headers: {
+                    'X-CSRF-TOKEN'     : csrf,
+                    'Accept'           : 'application/json',
+                    'X-Requested-With' : 'XMLHttpRequest',
+                },
+                body: payload,
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    alertEl.className   = 'alert alert-success';
+                    alertEl.textContent = data.message || 'Password changed successfully.';
+                    ['cp_current', 'cp_new', 'cp_confirm'].forEach(function (id) {
+                        var el = document.getElementById(id);
+                        el.value = '';
+                        el.type  = 'password';
+                    });
+                    form.querySelectorAll('.pw-toggle i').forEach(function (icon) {
+                        icon.className = 'fas fa-eye';
+                    });
+                    setTimeout(function () {
+                        if (typeof $.magnificPopup !== 'undefined') $.magnificPopup.close();
+                        alertEl.className = 'alert d-none';
+                    }, 1500);
+                } else {
+                    var msgs = [];
+                    if (data.errors) {
+                        msgs = Array.isArray(data.errors)
+                            ? data.errors
+                            : Object.values(data.errors).flat();
+                    }
+                    alertEl.className   = 'alert alert-danger';
+                    alertEl.textContent = msgs.join(' ') || 'Something went wrong.';
+                }
+            })
+            .catch(function () {
+                alertEl.className   = 'alert alert-danger';
+                alertEl.textContent = 'Network error. Please try again.';
+            })
+            .finally(function () {
+                btn.disabled           = false;
+                btn.textContent        = 'Change Password';
+                btn.dataset.submitting = '0';
+            });
+        });
+    })();
     </script>
 
     @stack('scripts')

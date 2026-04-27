@@ -1,106 +1,129 @@
 @extends('layouts.app')
-@section('title', 'Vouchers | '.ucfirst($type ?? 'Journal'))
-
+@section('title', ucfirst($type).' Vouchers')
 @section('content')
-<div class="row">
-  <div class="col">
-    <section class="card">
-      @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-      @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
-      <header class="card-header">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem;">
-          <h2 class="card-title mb-0">
-            {{ ['journal'=>'Journal Vouchers','payment'=>'Payment Vouchers','receipt'=>'Receipt Vouchers','purchase'=>'Purchase Vouchers','sale'=>'Sale Vouchers'][$type??'journal'] ?? 'Vouchers' }}
-          </h2>
-          @if(in_array($type??'', ['journal','payment','receipt']))
-          @can('vouchers.create')
-          <a href="{{ route('vouchers.create', $type) }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> New Voucher
-          </a>
-          @endcan
-          @endif
+<section class="card">
+    <header class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="card-title">{{ ucfirst($type) }} Vouchers</h2>
+            <a href="{{ route('vouchers.create', ['type' => $type]) }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> New {{ ucfirst($type) }} Voucher
+            </a>
         </div>
-        {{-- Type tabs --}}
-        <ul class="nav nav-tabs mt-3">
-          @foreach(['journal'=>'Journal','payment'=>'Payment','receipt'=>'Receipt','purchase'=>'Purchase','sale'=>'Sale'] as $t => $lbl)
-          <li class="nav-item">
-            <a class="nav-link {{ ($type??'journal')===$t?'active':'' }}" href="{{ route('vouchers.index',$t) }}">{{ $lbl }}</a>
-          </li>
-          @endforeach
+    </header>
+    <div class="card-body">
+
+        {{-- Type Tabs --}}
+        <ul class="nav nav-tabs mb-3">
+            @foreach(['journal'=>'Journal','payment'=>'Payment','receipt'=>'Receipt'] as $t => $label)
+            <li class="nav-item">
+                <a class="nav-link {{ $type == $t ? 'active' : '' }}"
+                   href="{{ route('vouchers.index', ['type' => $t]) }}">
+                    {{ $label }}
+                </a>
+            </li>
+            @endforeach
         </ul>
-      </header>
 
-      {{-- Filters --}}
-      <div class="card-body border-bottom pb-3">
-        <form method="GET" action="{{ route('vouchers.index',$type??'journal') }}" class="row g-2 align-items-end">
-          <div class="col-md-2">
-            <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
-          </div>
-          <div class="col-md-2">
-            <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
-          </div>
-          <div class="col-md-2">
-            <select name="status" class="form-control">
-              <option value="">All Status</option>
-              <option value="draft"     {{ request('status')==='draft'?'selected':'' }}>Draft</option>
-              <option value="posted"    {{ request('status')==='posted'?'selected':'' }}>Posted</option>
-              <option value="cancelled" {{ request('status')==='cancelled'?'selected':'' }}>Cancelled</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <input type="text" name="search" class="form-control" placeholder="Voucher # or narration…" value="{{ request('search') }}">
-          </div>
-          <div class="col-md-3 d-flex gap-1">
-            <button type="submit" class="btn btn-primary flex-fill">Filter</button>
-            <a href="{{ route('vouchers.index',$type??'journal') }}" class="btn btn-secondary">Clear</a>
-          </div>
+        <form method="GET" class="row g-2 mb-3">
+            <input type="hidden" name="type" value="{{ $type }}">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control form-control-sm"
+                       placeholder="Voucher# or remarks..." value="{{ request('search') }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="from" class="form-control form-control-sm" value="{{ request('from') }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="to" class="form-control form-control-sm" value="{{ request('to') }}">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-primary"><i class="fas fa-search"></i></button>
+                <a href="{{ route('vouchers.index', ['type' => $type]) }}" class="btn btn-sm btn-warning">Reset</a>
+            </div>
         </form>
-      </div>
 
-      <div class="card-body">
-        <div class="table-scroll">
-          <table class="table table-bordered table-striped mb-0" id="cust-datatable-default">
-            <thead>
-              <tr>
-                <th>S.No</th><th>Voucher #</th><th>Date</th><th>Type</th><th>Narration</th>
-                <th class="text-end">Debit</th><th class="text-end">Credit</th><th>Status</th><th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($vouchers ?? [] as $i => $v)
-              <tr>
-                <td>{{ $i+1 }}</td>
-                <td><a href="{{ route('vouchers.show',$v->id) }}" class="text-primary fw-semibold">{{ $v->voucher_number }}</a></td>
-                <td>{{ $v->date }}</td>
-                <td><span class="badge bg-secondary">{{ $v->voucher_type }}</span></td>
-                <td>{{ Str::limit($v->narration,60) }}</td>
-                <td class="text-end">{{ number_format($v->total_dr,2) }}</td>
-                <td class="text-end">{{ number_format($v->total_cr,2) }}</td>
-                <td><span class="badge badge-{{ $v->status }}">{{ ucfirst($v->status) }}</span></td>
-                <td>
-                  <a href="{{ route('vouchers.show',$v->id) }}" class="text-info" title="View"><i class="fa fa-eye"></i></a>
-                  @if($v->status==='draft')
-                  <a href="{{ route('vouchers.edit',$v->id) }}" class="text-warning" title="Edit"><i class="fa fa-edit"></i></a>
-                  @endif
-                  <a href="{{ route('vouchers.print',$v->id) }}" target="_blank" class="text-secondary" title="Print"><i class="fas fa-print"></i></a>
-                  @if($v->status==='posted')
-                  <form method="POST" action="{{ route('vouchers.cancel',$v->id) }}" style="display:inline">
-                    @csrf
-                    <button class="btn btn-link p-0 text-danger" onclick="return confirm('Cancel and create reversal?')" title="Cancel"><i class="fas fa-ban"></i></button>
-                  </form>
-                  @endif
-                </td>
-              </tr>
-              @empty
-              <tr><td colspan="9" class="text-center text-muted py-4">No vouchers found.</td></tr>
-              @endforelse
-            </tbody>
-          </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Voucher #</th>
+                        <th>Date</th>
+                        <th>Debit Account</th>
+                        <th>Credit Account</th>
+                        <th class="text-right">Amount</th>
+                        <th>Remarks</th>
+                        <th>Created By</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($vouchers as $v)
+                <tr>
+                    <td><strong>{{ $v->voucher_no }}</strong></td>
+                    <td>{{ \Carbon\Carbon::parse($v->date)->format('d/m/Y') }}</td>
+                    <td style="font-size:12px;">
+                        <code>{{ optional($v->debitAccount)->account_code }}</code>
+                        {{ optional($v->debitAccount)->name }}
+                    </td>
+                    <td style="font-size:12px;">
+                        <code>{{ optional($v->creditAccount)->account_code }}</code>
+                        {{ optional($v->creditAccount)->name }}
+                    </td>
+                    <td class="text-right fw-bold">{{ number_format($v->amount, 2) }}</td>
+                    <td style="font-size:12px;">{{ $v->remarks ?? '—' }}</td>
+                    <td style="font-size:12px;">{{ optional($v->creator)->name ?? '—' }}</td>
+                    <td class="text-center">
+                        <a href="{{ route('vouchers.show', $v) }}" class="btn btn-xs btn-info" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ route('vouchers.print', $v) }}" class="btn btn-xs btn-secondary"
+                           target="_blank" title="Print">
+                            <i class="fas fa-print"></i>
+                        </a>
+                        <a href="{{ route('vouchers.edit', $v) }}" class="btn btn-xs btn-warning" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ route('vouchers.destroy', $v) }}" method="POST"
+                              class="d-inline" onsubmit="return confirm('Delete voucher {{ $v->voucher_no }}?')">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-xs btn-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="fas fa-receipt fa-2x mb-2 d-block"></i>
+                        No {{ $type }} vouchers found
+                    </td>
+                </tr>
+                @endforelse
+                </tbody>
+                @if($vouchers->count())
+                <tfoot>
+                    <tr class="table-light">
+                        <td colspan="4" class="text-right fw-bold">Page Total:</td>
+                        <td class="text-right fw-bold">{{ number_format($vouchers->sum('amount'), 2) }}</td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
+                @endif
+            </table>
         </div>
-        @if(method_exists($vouchers??new\stdClass,'links'))<div class="mt-3">{{ $vouchers->appends(request()->query())->links() }}</div>@endif
-      </div>
-    </section>
-  </div>
-</div>
+
+        @if($vouchers->hasPages())
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted" style="font-size:13px;">
+                Showing {{ $vouchers->firstItem() }}–{{ $vouchers->lastItem() }} of {{ $vouchers->total() }}
+            </div>
+            {{ $vouchers->links() }}
+        </div>
+        @endif
+
+    </div>
+</section>
+
 @endsection
