@@ -22,12 +22,16 @@ class ProductionOrderController extends Controller
             ?? ChartOfAccounts::where('account_type','inventory')->value('id');
     }
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
         $user   = auth()->user();
-        $orders = ProductionOrder::with('branch','vendor')
+        $orders = ProductionOrder::with('branch')
             ->when($user->branch_id, fn($q) => $q->where('branch_id', $user->branch_id))
-            ->latest()->get();
+            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->when($request->type,   fn($q) => $q->where('type',   $request->type))
+            ->when($request->from,   fn($q) => $q->whereDate('order_date','>=', $request->from))
+            ->when($request->to,     fn($q) => $q->whereDate('order_date','<=', $request->to))
+            ->latest()->paginate(25)->withQueryString();
         return view('production.orders.index', compact('orders'));
     }
 
@@ -53,7 +57,7 @@ class ProductionOrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $last = ProductionOrder::withTrashed()->max('id') ?? 0;
+            $last = \Illuminate\Support\Facades\DB::table('production_orders')->max('id') ?? 0;
             $no   = 'PRD-' . str_pad($last + 1, 6, '0', STR_PAD_LEFT);
 
             $order = ProductionOrder::create([
@@ -80,7 +84,7 @@ class ProductionOrderController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('production_orders.index')->with('success', 'Production Order created.');
+            return redirect()->route('production.orders.index')->with('success', 'Production Order created.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => $e->getMessage()]);
@@ -107,7 +111,7 @@ class ProductionOrderController extends Controller
     {
         $order = ProductionOrder::findOrFail($id);
         $order->update($request->only('type','outsource_vendor_id','order_date','expected_date','status','remarks'));
-        return redirect()->route('production_orders.index')->with('success', 'Order updated.');
+        return redirect()->route('production.orders.index')->with('success', 'Order updated.');
     }
 
     /**
@@ -146,7 +150,15 @@ class ProductionOrderController extends Controller
     /**
      * Receive finished goods.
      */
-    public function receive(Request $request, $id)
+    public function receiptCreate($id)
+    {
+        $order      = ProductionOrder::with('rawMaterials.variation.product')->findOrFail($id);
+        $variations = \App\Models\ProductVariation::with('product')->where('is_active',1)->get();
+        $units      = \App\Models\MeasurementUnit::all();
+        return view('production.receipts.create', compact('order','variations','units'));
+    }
+
+    public function receiptStore(Request $request, $id)
     {
         $order = ProductionOrder::findOrFail($id);
         $request->validate([
@@ -158,7 +170,7 @@ class ProductionOrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $last = ProductionReceipt::max('id') ?? 0;
+            $last = \Illuminate\Support\Facades\DB::table('production_receipts')->max('id') ?? 0;
             $receipt = ProductionReceipt::create([
                 'production_order_id' => $order->id,
                 'receipt_no'          => 'PRDR-' . str_pad($last + 1, 6, '0', STR_PAD_LEFT),
