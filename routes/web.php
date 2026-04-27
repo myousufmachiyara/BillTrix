@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     DashboardController,
+    RoleController,
     BranchController,
     COAController,
     ProductController,
@@ -121,13 +122,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('orders/{order}/receipt', [ProductionOrderController::class, 'receiptStore'])->name('receipt.store');
     });
 
-    // Users
+    // Users & Roles
     Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/inventory', [InventoryReportController::class, 'index'])->name('inventory');
-        Route::get('/inventory/ledger', [InventoryReportController::class, 'ledger'])->name('inventory.ledger');
+        Route::get('/inventory/ledger', [InventoryReportController::class, 'ledger'])->name('inventory.ledger'); // redirects to index with IL tab
         Route::get('/purchases', [PurchaseReportController::class, 'index'])->name('purchases');
         Route::get('/sales', [SalesReportController::class, 'index'])->name('sales');
         Route::get('/accounts', [AccountsReportController::class, 'index'])->name('accounts');
